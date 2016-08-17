@@ -41,14 +41,14 @@ def make_category(title, pornhub_category):
         if cat[0][0] in title:
             category.append(cat[1][0])
 
-        if len(category) >= 3:
+        if len(category) == 3:
             return category
 
     for _ in range(3):
         cat_id = random.choice(pornhub_category)[1][0]  
         category.append(cat_id)
 
-        if len(category) >= 3:
+        if len(category) == 3:
             return category
 
     # функция получает чистый титл + название списка категорий для данного сайта из category.py
@@ -69,14 +69,14 @@ def make_tags(title, pornhub_tags):
         if tag in title:
             tags.append(tag)
 
-        if len(tags) >= 3:
+        if len(tags) == 3:
             return ' '.join(tags)
 
     for _ in range(3):
         tag = random.choice(pornhub_tags)
         tags.append(tag)
 
-        if len(tags) >= 3:
+        if len(tags) == 3:
             return ' '.join(tags)
     # функция получает чистый титл и возвращает 3 тега
     # берем список tags

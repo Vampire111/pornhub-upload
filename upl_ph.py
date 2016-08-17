@@ -172,6 +172,10 @@ def save_videodata(filename, viewkey, formHash):
     category_ = str(make_category(title, pornhub_category )).replace('\'',  '\"')
     tags_ = make_tags(title, tags)
     description_ = make_description(description)
+    log.info("{}: title: {}".format(name, title))
+    log.info("{}: category: {}".format(name, category_))
+    log.info("{}: tags: {}".format(name, tags_))
+    log.info("{}: description: {}".format(name, description_))
     
     
     data = {
