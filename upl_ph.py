@@ -44,9 +44,34 @@ def get_user():
         return users_list
     else:
         return None
+
+def get_proxy():
+    try:
+        with open(os.path.join(basedir,  upload_accounts_folder,  'proxy.txt'),  'r') as files:
+            proxies = files.read().split('\n')
+    except:
+        return None
+
+    proxies_list = []
+    for proxy in proxies:
+        if len(user) > 1:
+            proxies_list.append(user)
+            
+    if len(proxies_list) > 0:
+        return proxies_list
+    else:
+        return None
         
-def create_session(login, password):
+def create_session(login, password, proxy):
     s = requests.Session()
+
+    p_data = proxy.split(':')
+
+    proxy = 'http://%s:%s@%s:%s/' % (p_data[2], p_data[3], p_data[0], p_data[1])
+    s.proxies = {'http':  proxy,
+                    'https': proxy}
+
+    
     
     log.info("{}: try to login into account {}:{}".format(name,  login,  password))
 
@@ -227,12 +252,19 @@ def main():
         exit()
     
     user = users[0]
-    
     print(user)
+
+    proxies = get_proxy()
+    if not proxy:
+        log.error("{}: no proxy, upload skipped".format(name))
+        exit()
+
+    proxy = proxies[0]
+    
     login = user.split(':')[0]
     password  = user.split(':')[1]
     global s
-    s = create_session(login,  password)
+    s = create_session(login,  password, proxy)
     for _ in range(upload_packet):
         video = videos.pop(0)
         print('upload video',  video)
