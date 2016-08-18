@@ -5,14 +5,32 @@ import requests
 import re
 import time
 import random
+import sys
 
 from lib.upload_lib import *
 from lib.single import *
 import logging as log
 
+class StreamToLogger(object):
+    """
+    Fake file-like stream object that redirects writes to a logger instance.
+    """
+    def __init__(self, logger, log_level=log.INFO):
+        self.logger = logger
+        self.log_level = log_level
+        self.linebuf = ''
+
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            self.logger.log(self.log_level, line.rstrip())
+
 basedir = os.path.dirname(__file__)
 
 log.basicConfig(format = u'%(levelname)-8s [%(asctime)s] %(message)s', level = log.DEBUG, filename = os.path.join(basedir,  upload_log_file))
+
+stderr_logger = log.getLogger('STDERR')
+sl = StreamToLogger(stderr_logger, log.ERROR)
+sys.stderr = sl
 
 name = "pornhub"
 
@@ -104,18 +122,27 @@ def create_session(login, password, proxy):
     url = 'http://www.pornhub.com/front/login_json'
 
     resp = s.post(url, data)
-    print(resp.text)
+    log.debug("{}: {}".format(name, resp.text))
+
     if resp.json()['success'] == 1:
         log.info("{}: login success".format(name))
+        return s
+    else:
+        return 'Bad acc'
 
-    return s
     
 def get_upload_param():
     url = 'http://www.pornhub.com/upload/get_upload_file_params'
 
     data = {}
     resp = s.post(url, data)
-    print(resp.text)
+    log.debug("{}: {}".format(name, resp.text))
+
+    if 'error' in resp.text:
+        delete_user_from_file(users,  user)
+        log.error("{}: Wrong account. {}".format(name, user))
+        exit()
+    
     url = eval(resp.text)['fileparams'][0]['uploadFileUrl'].replace('\\', '')
     formHash = eval(resp.text)['fileparams'][0]['formHash']
     viewkey = eval(resp.text)['fileparams'][0]['viewkey']
@@ -173,10 +200,9 @@ Content-Type: video/mp4
         data += '\n-----------------------------30531190830488--'
 
         resp = s.post(url, data)
-        print(resp.text)
+        log.debug("{}: {}".format(name, resp.text))
 
         if finish_step >= all_length - 1:
-            print('break')
             break
 
     save_videodata(filename, viewkey, formHash)
@@ -224,12 +250,11 @@ def save_videodata(filename, viewkey, formHash):
         'timestamp': time.time(),
         'isPremiumVideo': '0'
         }
-    print(data)
 
     url = 'http://www.pornhub.com/uploading/save_videodata'
 
     resp = s.post(url, data)
-    print(resp.text)
+    log.debug("{}: {}".format(name, resp.text))
     if resp.json()['success'] == 'true':
         log.info("{}: upload success".format(name))
     
@@ -253,6 +278,9 @@ def main():
     if len(videos) <5:
         log.error("{}: no video for uploading, upload skipped".format(name))
         exit()
+
+    global users
+    global user
         
     users= get_user()
     if not users:
@@ -260,7 +288,7 @@ def main():
         exit()
     
     user = users[0]
-    print(user)
+    log.debug("{}: {}".format(name, user))
 
     proxies = get_proxy()
     if not proxies:
@@ -278,10 +306,15 @@ def main():
     if not s:
         delete_proxy_from_file(proxies, proxy)
         exit()
+    elif s == 'Bad acc':
+        delete_user_from_file(users,  user)
+        log.error("{}: Wrong account. {}".format(name, user))
+        exit()
         
     for _ in range(upload_packet):
         video = videos.pop(0)
-        print('upload video',  video)
+        log.debug("{}: upload video {}".format(name, video))
+
         upload_video(video)
         delete_video_from_folder(video)
         time.sleep(upload_packet_timeout)
