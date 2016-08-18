@@ -4,6 +4,7 @@
 import requests
 import re
 import time
+import random
 
 from lib.upload_lib import *
 from lib.single import *
@@ -257,7 +258,7 @@ def main():
         log.error("{}: no proxy, upload skipped".format(name))
         exit()
 
-    proxy = proxies[0]
+    proxy = random.choice(proxies)
     
     login = user.split(':')[0]
     password  = user.split(':')[1]
