@@ -263,7 +263,7 @@ def main():
     print(user)
 
     proxies = get_proxy()
-    if not proxy:
+    if not proxies:
         log.error("{}: no proxy, upload skipped".format(name))
         exit()
 
