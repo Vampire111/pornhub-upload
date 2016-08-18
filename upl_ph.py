@@ -54,8 +54,8 @@ def get_proxy():
 
     proxies_list = []
     for proxy in proxies:
-        if len(user) > 1:
-            proxies_list.append(user)
+        if len(proxy) > 1:
+            proxies_list.append(proxy)
             
     if len(proxies_list) > 0:
         return proxies_list
@@ -70,8 +70,6 @@ def create_session(login, password, proxy):
     proxy = 'http://%s:%s@%s:%s/' % (p_data[2], p_data[3], p_data[0], p_data[1])
     s.proxies = {'http':  proxy,
                     'https': proxy}
-
-    
     
     log.info("{}: try to login into account {}:{}".format(name,  login,  password))
 
