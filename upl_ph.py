@@ -74,7 +74,11 @@ def create_session(login, password, proxy):
     
     log.info("{}: try to login into account {}:{}".format(name,  login,  password))
 
-    resp = s.get('http://www.pornhub.com/')
+    try:
+        resp = s.get('http://www.pornhub.com/')
+    except:
+        log.info("{}: proxy {} dead".format(name,  proxy))
+        return False
 
     redict = re.findall('name="redirect" value="(.+?)"', resp.text)[0]
     login_key = re.findall('id="login_key" value="(.+?)"', resp.text)[0]
@@ -234,6 +238,11 @@ def delete_user_from_file(all_users,  current_user):
     all_users.remove(current_user)
     with open(os.path.join(basedir,  upload_accounts_folder,  'pornhub.txt'),  'w') as files:
         files.write('\n'.join(all_users))
+
+def delete_proxy_from_file(all_proxies,  current_proxy):
+    all_proxies.remove(current_proxy)
+    with open(os.path.join(basedir,  upload_accounts_folder,  'proxy.txt'),  'w') as files:
+        files.write('\n'.join(all_proxies))
         
 def delete_video_from_folder(filename):
     os.remove(os.path.join(basedir,  videos_folder,  filename))
@@ -262,8 +271,14 @@ def main():
     
     login = user.split(':')[0]
     password  = user.split(':')[1]
+    
     global s
     s = create_session(login,  password, proxy)
+    
+    if not s:
+        delete_proxy_from_file(proxies, proxy)
+        exit()
+        
     for _ in range(upload_packet):
         video = videos.pop(0)
         print('upload video',  video)
