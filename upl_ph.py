@@ -26,24 +26,14 @@ class StreamToLogger(object):
 
 basedir = os.path.dirname(__file__)
 
-log.basicConfig(format = u'%(levelname)-8s [%(asctime)s] %(message)s', level = log.DEBUG, filename = os.path.join(basedir,  upload_log_file))
+log.basicConfig(format = u'%(levelname)-8s [%(asctime)s] %(message)s',
+                level = log.DEBUG, filename = os.path.join(basedir,  upload_log_file))
 
 stderr_logger = log.getLogger('STDERR')
 sl = StreamToLogger(stderr_logger, log.ERROR)
 sys.stderr = sl
 
 name = "pornhub"
-
-#
-#log.info("{name}: check if fields exist".format())
-#
-#log.info("{name}: check if fields exists".format())
-#
-#
-#log.info("{name}: data to report file {login}:{password}:http://www.pornhub.com/view_video.php?viewkey=ph57aa13005297a{public_url}".format())
-#
-#log.error("{name}: no field 'field-name -название поля, которого нет' , script stopped".format())
-#log.error("{name}: exception. ".format())
 
 def get_videos():
     data = os.walk(os.path.join(basedir,  videos_folder))
