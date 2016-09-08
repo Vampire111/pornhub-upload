@@ -36,7 +36,7 @@ sys.stderr = sl
 name = "pornhub"
 
 def get_videos():
-    data = os.walk(os.path.join(basedir,  videos_folder))
+    data = os.walk(os.path.join(basedir,  videos_folder, name))
     for root,  dirs,  files in data:
         return files
         
@@ -143,7 +143,7 @@ def get_upload_param():
 
 
 def get_file_data(filename):
-    with open(os.path.join(basedir,  videos_folder,  filename), 'rb') as files:
+    with open(os.path.join(basedir,  videos_folder, name,  filename), 'rb') as files:
         filedata = files.read()
 
     return filedata
@@ -214,7 +214,7 @@ def save_videodata(filename, viewkey, formHash):
     
     title = make_title(filename)
     category_ = str(make_category(title, pornhub_category )).replace('\'',  '\"')
-    tags_ = make_tags(title, tags)
+    tags_ = ' '.join(make_tags(title, tags))
     description_ = make_description(description)
     log.info("{}: title: {}".format(name, title))
     log.info("{}: category: {}".format(name, category_))
@@ -260,7 +260,7 @@ def delete_proxy_from_file(all_proxies,  current_proxy):
         files.write('\n'.join(all_proxies))
         
 def delete_video_from_folder(filename):
-    os.remove(os.path.join(basedir,  videos_folder,  filename))
+    os.remove(os.path.join(basedir,  videos_folder, name,  filename))
     
 
 def main():
